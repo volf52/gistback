@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "gistback"
+version = "0.1.0"
+description = "Backup important files to gist.github.com"
+authors = ["Arslan <rslnkrmt2552@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Click = "^7.0"
+requests = "^2.22"
+python-dotenv = "^0.10.3"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+backitup = "gistback.api:ask_for_creds"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
