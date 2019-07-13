@@ -1,50 +1,52 @@
+import json
 import os
+import sys
 from pathlib import Path
 from typing import Tuple
-import json
-from dotenv import load_dotenv
+
+from gitAuth import create_initial_commit
 
 
-def get_default_settings() -> dict:
-    return {"anc": 123}
+class Gistback(object):
+    def __init__(self, logger):
+        self.dir = Path(Path.home()) / "gistback"
+        self.file = self.dir / "settings.json"
+        self.config = {}
+        self.verbose = False
+        self.logger = logger
 
+    def set_config(self, key, value):
+        self.config[key] = value
+        if self.verbose:
+            self.logger(f"  config[{key}] = {value}", file=sys.stderr)
 
-def read_settings():
-    settings_dir = Path(Path.home()) / "gistback"
-    settings_file = settings_dir / "settings.json"
-    if not settings_dir.exists():
-        Path.mkdir(settings_dir)
-    if not settings_file.exists():
-        Path.touch(settings_file)
-        settings_file.write_text(json.dumps(get_default_settings()))
+    def get_api_token(self) -> str:
+        api_token = input("Enter you api token -> ").strip()
+        return api_token
 
-    return json.loads(settings_file.read_text())
+    def write_config(self):
+        self.file.write_text(json.dumps(self.config))
 
+    def initialize(self):
+        if not self.dir.exists():
+            Path.mkdir(self.dir)
 
-def read_dev_creds() -> Tuple[str, str]:
-    env_path = Path(".") / ".env"
-    if not env_path.exists():
-        Path.touch(env_path)
-    load_dotenv(verbose=True, dotenv_path=env_path)
-    api_key, api_secret = os.getenv("API_KEY"), os.getenv("API_SECRET")
-    if not (api_key and api_secret):
-        api_key, api_secret = save_creds_to_env(env_path)
-    return api_key, api_secret
+        if not self.file.exists():
+            Path.touch(self.file)
 
+        api_token = self.get_api_token()
+        commitId = create_initial_commit(api_token)
+        self.config["apiToken"] = api_token
+        self.config["commitId"] = commitId
+        return self.config
 
-def ask_for_creds() -> Tuple[str, str]:
-    api_key = input("Enter you api key -> ").strip()
-    api_secret = input("Enter your api secret -> ").strip()
-    return (api_key, api_secret)
-
-
-def save_creds_to_env(path_to_env: Path) -> Tuple[str, str]:
-    api_key, api_secret = ask_for_creds()
-    path_to_env.write_text(f"API_KEY={api_key}\nAPI_SECRET={api_secret}")
-    return (api_key, api_secret)
+    def __repr__(self):
+        return "<Gistback %r>" % self.home
 
 
 if __name__ == "__main__":
-    # print(read_dev_creds())
-    print(type(read_settings()))
+    from click import echo
+
+    gb = Gistback(echo)
+    print(gb.initialize())
     pass
