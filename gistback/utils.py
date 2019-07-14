@@ -5,7 +5,7 @@ from hashlib import md5
 from pathlib import Path
 from typing import Tuple
 
-from gitAuth import create_initial_commit
+from .gitAuth import create_initial_commit
 
 
 class Gistback(object):
@@ -42,6 +42,7 @@ class Gistback(object):
         commitId = create_initial_commit(api_token)
         self.config["apiToken"] = api_token
         self.config["commitId"] = commitId
+        self.config["fileList"] = []
         self.write_config()
         return self.config
 
@@ -83,8 +84,19 @@ class Gistback(object):
             old_hash = f.get("md5sum")
             new_hash = md5(Path(f.get("filePath")).read_bytes()).hexdigest()
             if old_hash != new_hash:
-                diff_list.append(f)
-                self.logger(f"{i}\t{name}\t{old_hash}\t{new_hash}")
+                diff_list.append((i, name, old_hash, new_hash, f))
+        return diff_list
+
+    def diff(self):
+        diff_list = self.calculate_diff()
+        for f in diff_list:
+            i, name, old_hash, new_hash, _ = f
+
+            self.logger(f"{i}\t{name}\t{old_hash}\t{new_hash}")
+
+    def run_backup(self):
+        diff_list = self.calculate_diff()
+        self.logger(f"Running backup for {len(diff_list)} files.")
 
     def __repr__(self):
         return "<Gistback %r>" % self.home

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import click
 
-from utils import Gistback
+from .utils import Gistback
 
 gist_dec = click.make_pass_decorator(Gistback)
 
@@ -73,7 +73,17 @@ def diff(gb: Gistback):
     """See which files have been changed.
     """
     click.echo("------------------------------------")
-    gb.calculate_diff()
+    gb.diff()
+    click.echo("------------------------------------")
+
+
+@cli.command()
+@gist_dec
+def run(gb: Gistback):
+    """Run backup.
+    """
+    click.echo("------------------------------------")
+    gb.run_backup()
     click.echo("------------------------------------")
 
 
