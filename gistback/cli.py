@@ -10,26 +10,27 @@ gist_dec = click.make_pass_decorator(Gistback)
 
 
 @click.group()
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose mode.")
 @click.version_option("0.1.0")
 @click.pass_context
-def cli(ctx):
+def cli(ctx, verbose: bool):
     ctx.obj = Gistback(click.echo)
     ctx.obj.read_config()
-    # ctx.obj.verbose = verbose
+    ctx.obj.verbose = verbose
 
 
 @cli.command()
-@click.option("--verbose", "-v", is_flag=True, help="Enable verbose mode.")
 @gist_dec
-def init(gb, verbose):
+def init(gb: Gistback):
     """Initialize the program.
-
     """
+    click.echo("------------------------------------")
     click.echo("Initializing gistback")
     click.echo(f"Settings dir at {gb.dir}")
     gb.initialize()
     click.echo(f"Gist Commit ID : {gb.config.get('commitId')}")
     click.echo("Completed")
+    click.echo("------------------------------------")
 
 
 @cli.command()
@@ -37,8 +38,8 @@ def init(gb, verbose):
 @gist_dec
 def add(gb: Gistback, file_path: Path):
     """Add file to backup list.
-
     """
+    click.echo("------------------------------------")
     click.echo(f"Path to file is {file_path}")
     gb.add(file_path)
     click.echo("File added successfully")
@@ -48,8 +49,8 @@ def add(gb: Gistback, file_path: Path):
 @gist_dec
 def list(gb: Gistback):
     """List files to backup.
-
     """
+    click.echo("------------------------------------")
     gb.list_files()
     click.echo("------------------------------------")
 
@@ -58,10 +59,10 @@ def list(gb: Gistback):
 @click.argument("index", type=int)
 @click.confirmation_option()
 @gist_dec
-def remove(gb: Gistback, index):
+def remove(gb: Gistback, index: int):
     """Remove a file from backup list.
-
     """
+    click.echo("------------------------------------")
     gb.remove_file(index)
     click.echo("------------------------------------")
 
