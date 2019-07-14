@@ -1,10 +1,10 @@
 import sys
+from hashlib import md5
+from pathlib import Path
 
 import click
 
 from utils import Gistback
-from pathlib import Path
-from hashlib import md5
 
 gist_dec = click.make_pass_decorator(Gistback)
 
@@ -67,5 +67,16 @@ def remove(gb: Gistback, index: int):
     click.echo("------------------------------------")
 
 
+@cli.command()
+@gist_dec
+def diff(gb: Gistback):
+    """See which files have been changed.
+    """
+    click.echo("------------------------------------")
+    gb.calculate_diff()
+    click.echo("------------------------------------")
+
+
 if __name__ == "__main__":
     cli()
+

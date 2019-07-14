@@ -1,6 +1,7 @@
-import requests
-from datetime import datetime
 import json
+from datetime import datetime
+
+import requests
 
 BASE_URL = "https://api.github.com"
 

@@ -1,9 +1,10 @@
 import json
 import os
 import sys
+from hashlib import md5
 from pathlib import Path
 from typing import Tuple
-from hashlib import md5
+
 from gitAuth import create_initial_commit
 
 
@@ -49,7 +50,13 @@ class Gistback(object):
         file_list = self.config.get("fileList", [])
         file_hash = md5(file_path.read_bytes()).hexdigest()
         self.logger(f"Hash of the added file is {file_hash}")
-        file_list.append({"file_path": str(file_path.absolute()), "md5sum": file_hash})
+        file_list.append(
+            {
+                "filePath": str(file_path.absolute()),
+                "md5sum": file_hash,
+                "name": file_path.stem + file_path.suffix,
+            }
+        )
         self.config["fileList"] = file_list
         self.write_config()
 
@@ -60,13 +67,24 @@ class Gistback(object):
             f_hash = f.get("md5sum", "")
             self.logger(f"{i}\t{str(f_path)}\t{f_hash}")
 
-    def remove_file(self, idx):
+    def remove_file(self, idx: int):
         file_list = self.config.get("fileList", [])
         if idx < len(file_list) and idx >= 0:
             removed = file_list.pop(idx)
             self.write_config()
             f_path = str(Path(removed.get("filePath", "")))
             self.logger(f"Removed {f_path}")
+
+    def calculate_diff(self):
+        file_list = self.config.get("fileList", [])
+        diff_list = []
+        for i, f in enumerate(file_list):
+            name = f.get("name", "")
+            old_hash = f.get("md5sum")
+            new_hash = md5(Path(f.get("filePath")).read_bytes()).hexdigest()
+            if old_hash != new_hash:
+                diff_list.append(f)
+                self.logger(f"{i}\t{name}\t{old_hash}\t{new_hash}")
 
     def __repr__(self):
         return "<Gistback %r>" % self.home
