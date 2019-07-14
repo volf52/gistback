@@ -4,7 +4,7 @@ from pathlib import Path
 
 import click
 
-from .utils import Gistback
+from .gistback import Gistback
 
 gist_dec = click.make_pass_decorator(Gistback)
 
