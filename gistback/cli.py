@@ -5,6 +5,7 @@ from pathlib import Path
 import click
 
 from .gistback import Gistback
+from .gitAuth import update_gist
 
 gist_dec = click.make_pass_decorator(Gistback)
 
@@ -35,19 +36,18 @@ def init(gb: Gistback):
 
 @cli.command()
 @click.argument("file_path", type=Path)
+@click.option("-n", "--name", help="Name for the file")
 @gist_dec
-def add(gb: Gistback, file_path: Path):
+def add(gb: Gistback, file_path: Path, name):
     """Add file to backup list.
     """
     click.echo("------------------------------------")
-    click.echo(f"Path to file is {file_path}")
-    gb.add(file_path)
-    click.echo("File added successfully")
+    gb.add(file_path, name)
 
 
 @cli.command()
 @gist_dec
-def list(gb: Gistback):
+def ls(gb: Gistback):
     """List files to backup.
     """
     click.echo("------------------------------------")
@@ -63,7 +63,19 @@ def remove(gb: Gistback, index: int):
     """Remove a file from backup list.
     """
     click.echo("------------------------------------")
-    gb.remove_file(index)
+    gb.remove_file(index, "fileList")
+    click.echo("------------------------------------")
+
+
+@cli.command()
+@click.argument("index", type=int)
+@click.confirmation_option()
+@gist_dec
+def unstage(gb: Gistback, index: int):
+    """Unstage a file.
+    """
+    click.echo("------------------------------------")
+    gb.remove_file(index, "newFiles")
     click.echo("------------------------------------")
 
 
@@ -74,6 +86,26 @@ def diff(gb: Gistback):
     """
     click.echo("------------------------------------")
     gb.diff()
+    click.echo("------------------------------------")
+
+
+@cli.command()
+@gist_dec
+def staged(gb: Gistback):
+    """List the files staged for backup.
+    """
+    click.echo("------------------------------------")
+    gb.list_staged()
+    click.echo("------------------------------------")
+
+
+@cli.command()
+@gist_dec
+def test(gb: Gistback):
+    """To test various stuff.
+    """
+    click.echo("------------------------------------")
+    click.echo(gb.prep())
     click.echo("------------------------------------")
 
 

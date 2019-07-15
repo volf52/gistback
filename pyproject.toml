@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gistback"
-version = "0.1.0"
+version = "0.5.0"
 description = "Backup important files to gist.github.com"
 authors = ["Arslan <rslnkrmt2552@gmail.com>"]
 license = "MIT"

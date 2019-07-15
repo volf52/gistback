@@ -23,3 +23,20 @@ def create_initial_commit(token: str) -> str:
         return r.json().get("id", "")
     else:
         return ""
+
+
+def update_gist(token: str, id: str, files):
+    headers = {"Authorization": f"token {token}"}
+    data = json.dumps(
+        {
+            "files": {
+                "gistSettings.json": {
+                    "content": json.dumps({"lastModified": str(datetime.now())})
+                },
+                **files,
+            }
+        }
+    )
+    r = requests.patch(f"{BASE_URL}/gists/{id}", headers=headers, data=data)
+
+    return r.status_code == 200
